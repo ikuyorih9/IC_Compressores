@@ -76,3 +76,4 @@ def rotate_all_bytes_from_dir(dirpath:str, rotate: int):
             rotate_byte(full_path, rotate)
             print(f"\t{filename}: all bytes rotated by {rotate}.")
     print("Done.")
+

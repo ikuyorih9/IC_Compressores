@@ -4,12 +4,10 @@ from create_tests import *
 
 data_path = "../data/"
 compressed_data_path = "../compressed_data/"
+compressor = "bz2"
 
 if __name__ == "__main__":
-    # rotate_some_bytes_from_dir(data_path + "LITTLE_PRINCE/", 1, ['a', 'e', 'o'])
-    # rotate_some_bytes_from_dir(data_path + "LITTLE_PRINCE/", 1, ['b', 'h', 'f'])
-    # rotate_all_bytes_from_dir(data_path + "LITTLE_PRINCE/", 1)
-    
-    # compress_all_from_dir("../data/LITTLE_PRINCE/", "../compressed_data/LITTLE_PRINCE/", "zlib")
-    # compress_all_from_dir("../data/LITTLE_PRINCE/", "../compressed_data/LITTLE_PRINCE/", "bz2")
-    compress_all_from_dir("../data/LITTLE_PRINCE/", "../compressed_data/LITTLE_PRINCE/", "gzip")
+    compress_all_from_dir("../data/LARGE/PROCESS/", "../compressed_data/LARGE/PROCESS/", compressor)
+    compress_all_from_dir("../data/LARGE/CONTROL/", "../compressed_data/LARGE/CONTROL/", compressor)
+
+    create_ncd_mixed_matrix("../compressed_data/LARGE/PROCESS/", 10, "../compressed_data/LARGE/CONTROL/", 10, "../results/", compressor)
