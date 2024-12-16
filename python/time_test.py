@@ -6,20 +6,20 @@ from compressors import *
 from compressing import *
 from create_tests import *
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
 
-  compressors = ["gzip", "zlib", "bz2"]
 
   with open('../results/compression_times.csv', mode='w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(["Compressor", "Min Time", "Max Time", "Mean Time", "Std Time"])
+    #writer.writerow(["Compressor", "Min Time", "Max Time", "Mean Time", "Std Time"])
 
+    compressors = ["gzip", "zlib", "bz2", "ppmd"]
     for compressor in tqdm(compressors, desc="Running test for all compressors"):
       stmt = f'create_ncd_mixed_matrix("../data/LARGE/PROCESS/", 10, "../data/LARGE/CONTROL/", 10, "../results/", "{compressor}")'
       setup = 'from __main__ import create_ncd_mixed_matrix'
       times = []
 
-      for _ in tqdm(range(15000), desc=f"Running repeats for {compressor}"):
+      for _ in tqdm(range(3500), desc=f"Running repeats for {compressor}"):
         timer = timeit.Timer(stmt=stmt, setup=setup)
         times.append(timer.timeit(number=1))
       

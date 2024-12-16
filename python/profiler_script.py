@@ -13,11 +13,12 @@ def prof_test(x : int, compressor):
 if __name__ == "__main__":
   quantity = 1000
 
-  compressors = {"gzip", "zlib", "bz2"}
+  compressors = ["gzip", "zlib", "bz2", "ppmd"]
 
   for compressor in compressors:
     stats_file = f"../results/{compressor}/{compressor}.stats"
-    # cProfile.run('prof_test(quantity, compressor)', stats_file)
+    
     cProfile.run(f'create_ncd_mixed_matrix("../data/LARGE/PROCESS/", 10, "../data/LARGE/CONTROL/", 10, "../results/", "{compressor}")', stats_file)
+    
     # Gera a imagem PNG usando gprof2dot e dot
     subprocess.run(f'gprof2dot -f pstats {stats_file} | dot -Tpng -o ../results/{compressor}/{compressor}.png', shell=True)
