@@ -32,7 +32,7 @@ def gzip_ncd_original_data(x:bytes, y:bytes) -> float:
     else:
         cxy = cxy_conc
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
 # BZ2 COMPRESSING FUNCTIONS
@@ -64,7 +64,7 @@ def bz2_ncd_original_data(x:bytes, y:bytes) -> float:
     else:
         cxy = cxy_conc
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
 # ZLIB COMPRESSING FUNCTIONS
@@ -104,7 +104,7 @@ def zlib_ncd_original_data(x:bytes, y:bytes) -> float:
     else:
         cxy = cxy_conc
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
 # PPMd COMPRESSING FUNCTIONS
@@ -137,7 +137,7 @@ def ppmd_ncd_original_data(x:bytes, y:bytes) -> float:
     else:
         cxy = cxy_conc
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
 def mix_data(x: bytes, y: bytes) -> bytes:

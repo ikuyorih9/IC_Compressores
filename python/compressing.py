@@ -66,26 +66,26 @@ def compress_all_from_dir(dirpath:str, output_path:str, compressor:str):
         compressor (str): selected compressor.
     """
     output_path = os.path.join(output_path, compressor)
-    print(f"Compressing all files from {dirpath} using {compressor}...")
+    # print(f"Compressing all files from {dirpath} using {compressor}...")
     for filename in os.listdir(dirpath): # Get each filename from dir.
         full_path = os.path.join(dirpath, filename) # Get the full path of the file.
         if not os.path.isdir(full_path): # If the full path is not a directory, so...
             with open(full_path, 'rb') as file: # Open the file for binary read.
-                print(f"\tOpening file {full_path} for binary read...")
+                # print(f"\tOpening file {full_path} for binary read...")
                 data = file.read() # Get data from the file.
                 compressed = compress(data, compressor) # Compress data using selected compressor.
 
                      
             if not os.path.exists(output_path): # If the output path doesn't exist
-                print(f"\tDirectory {output_path} doesn't exist. Creating...")
+                # print(f"\tDirectory {output_path} doesn't exist. Creating...")
                 os.makedirs(output_path, exist_ok=True) # Create the output path.
             
             output_file = os.path.join(output_path, filename) # Create output file path.
             with open(output_file, 'wb') as output: # Open the output file for binary write.
-                print(f"\tWriting in {output_file}")
+                # print(f"\tWriting in {output_file}")
                 output.write(compressed) # Writes compressed data in output.
 
-    print("Done.")
+    # print("Done.")
 
 def open_files_from_dir(dir:str, n:int) -> list:
     """
@@ -106,7 +106,7 @@ def open_files_from_dir(dir:str, n:int) -> list:
                 break
             rpath = os.path.join(dir, filename) # Get the path of the file.
 
-            print(f"\tOpening file {rpath}...")
+            # print(f"\tOpening file {rpath}...")
 
             with open(rpath, 'rb') as file: # Open the file.
                 data = file.read() # Read the file.
@@ -132,10 +132,10 @@ def create_ncd_mixed_matrix(dir1_path:str, dir1_qtt:int, dir2_path:str, dir2_qtt
     """
 
     try:
-        print(f"Opening {dir1_qtt} files from {dir1_path}...")
+        # print(f"Opening {dir1_qtt} files from {dir1_path}...")
         data = open_files_from_dir(dir1_path, dir1_qtt) # Open the first set of compressed files
         
-        print(f"Opening {dir2_qtt} files from {dir2_path}..")
+        # print(f"Opening {dir2_qtt} files from {dir2_path}..")
         data.extend(open_files_from_dir(dir2_path, dir2_qtt)) # Append the second set of compressed files to the datalist.
     except Exception as e:
         print("ERROR: an error happened while opening files from directories")
@@ -158,10 +158,10 @@ def create_ncd_mixed_matrix(dir1_path:str, dir1_qtt:int, dir2_path:str, dir2_qtt
     output_path = os.path.join(output_path, compressor)
 
     if not os.path.exists(output_path): # If the output path doesn't exist
-        print(f"\tDirectory {output_path} doesn't exist. Creating...")
+        # print(f"\tDirectory {output_path} doesn't exist. Creating...")
         os.makedirs(output_path, exist_ok=True) # Create the output path.
 
-    print("Writing the NCD matrix...")
+    # print("Writing the NCD matrix...")
 
     results_filename = os.path.join(output_path, "ncd_matrix.tsv")
     with open(results_filename, mode='w', newline='') as file:
@@ -172,7 +172,7 @@ def create_ncd_mixed_matrix(dir1_path:str, dir1_qtt:int, dir2_path:str, dir2_qtt
             linha_formatada = [data[i][1]] + [f"{num:.5f}".replace(".", ",") for num in ncd_matrix[i + 1][1:]]
             writer.writerow(linha_formatada)
 
-    print(f"Writing sorted NCD values...")
+    # print(f"Writing sorted NCD values...")
     
     sorted_data = sorted(ordered_data, key=lambda x: x[2])
 
@@ -198,7 +198,7 @@ def create_ncd_matrix(dir_path:str, output_path:str, compressor:str):
     """
 
     try:
-        print(f"Opening all files from {dir_path}...")
+        # print(f"Opening all files from {dir_path}...")
         data = open_files_from_dir(dir_path, -1) # Open the first set of compressed files
 
     except Exception as e:
@@ -222,10 +222,10 @@ def create_ncd_matrix(dir_path:str, output_path:str, compressor:str):
     output_path = os.path.join(output_path, compressor)
 
     if not os.path.exists(output_path): # If the output path doesn't exist
-        print(f"\tDirectory {output_path} doesn't exist. Creating...")
+        # print(f"\tDirectory {output_path} doesn't exist. Creating...")
         os.makedirs(output_path, exist_ok=True) # Create the output path.
 
-    print("Writing the NCD matrix...")
+    # print("Writing the NCD matrix...")
 
     results_filename = os.path.join(output_path, "ncd_matrix.tsv")
     with open(results_filename, mode='w', newline='') as file:
@@ -236,7 +236,7 @@ def create_ncd_matrix(dir_path:str, output_path:str, compressor:str):
             linha_formatada = [data[i][1]] + [f"{num:.5f}".replace(".", ",") for num in ncd_matrix[i + 1][1:]]
             writer.writerow(linha_formatada)
 
-    print(f"Writing sorted NCD values...")
+    # print(f"Writing sorted NCD values...")
     
     sorted_data = sorted(ordered_data, key=lambda x: x[2])
 
