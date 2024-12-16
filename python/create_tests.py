@@ -77,3 +77,28 @@ def rotate_all_bytes_from_dir(dirpath:str, rotate: int):
             print(f"\t{filename}: all bytes rotated by {rotate}.")
     print("Done.")
 
+def remove_redundant_data(dirpath: str, outpath: str):
+    for filename in os.listdir(dirpath):
+        full_path = os.path.join(dirpath, filename)
+        if not os.path.isdir(full_path):
+            print(f"Removing redundant data from file {filename}...")
+            
+            non_redundant_data = ""
+            last_line = ""
+            with open(full_path, 'r') as file:
+                for line in file:
+                    if last_line != line:
+                        non_redundant_data += line
+                        last_line = line
+                    else: 
+                        continue
+
+            if not os.path.exists(outpath): # If the output path doesn't exist
+                print(f"\tDirectory {outpath} doesn't exist. Creating...")
+                os.makedirs(outpath, exist_ok=True) # Create the output path.
+            
+            output_path = os.path.join(outpath, filename)
+
+            print(f"Writing non-redundant data in {output_path}")
+            with open(output_path, 'w') as outfile:
+                outfile.write(non_redundant_data)

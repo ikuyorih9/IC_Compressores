@@ -1,6 +1,7 @@
 import zlib
 import gzip
 import bz2
+import pyppmd
 
 # GZIP COMPRESSING FUNCTIONS
 def gzip_compress(data:bytes) -> bytes:
@@ -97,6 +98,39 @@ def zlib_ncd_original_data(x:bytes, y:bytes) -> float:
     xy = mix_data(x,y)
     cxy_mixed = zlib_compressed_size(xy)
     cxy_conc = zlib_compressed_size(x+y)
+
+    if cxy_mixed <= cxy_conc:
+        cxy = cxy_mixed
+    else:
+        cxy = cxy_conc
+
+    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    return (cxy - min(cx, cy))/max(cx, cy)
+
+# PPMd COMPRESSING FUNCTIONS
+def ppmd_compress(data: bytes) -> bytes:
+    return pyppmd.compress(data)
+
+def ppmd_compressed_size(data: bytes) -> int:
+    return len(pyppmd.compress(data))
+
+def ppmd_ncd_original_data(x:bytes, y:bytes) -> float:
+    """
+    Calculates NCD from non compressed data X and Y. In this case, data are ZLIB compressed before calculate.
+
+    Args:
+        x (bytes): bytes from original file 1.
+        y (bytes): bytes from original file 2.
+    
+    Returns:
+        float: the NCD value.
+    """
+    cx = ppmd_compressed_size(x)
+    cy = ppmd_compressed_size(y)
+    
+    xy = mix_data(x,y)
+    cxy_mixed = ppmd_compressed_size(xy)
+    cxy_conc = ppmd_compressed_size(x+y)
 
     if cxy_mixed <= cxy_conc:
         cxy = cxy_mixed

@@ -22,6 +22,9 @@ def compress(data: bytes, compressor: str) -> bytes:
     
     elif compressor == "gzip":
         return gzip_compress(data)
+    
+    elif compressor == "ppmd":
+        return ppmd_compress(data)
     else:
         "Selected compressor isn't available."
 
@@ -45,6 +48,10 @@ def ncd(x:bytes, y:bytes, compressor:str) -> float:
 
     elif compressor == "gzip":
         return gzip_ncd_original_data(x, y)
+    
+    elif compressor == "ppmd":
+        return ppmd_ncd_original_data(x, y)
+    
     else:
         "Selected compressor isn't available."
         return -1.0
