@@ -118,18 +118,18 @@ def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.
         memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
         strategy=strategy  # Estratégia de compressão
     )
-    process_time = 0
+    processing_time = 0
     for i in range(rounds):
         start = process_time()
         cx = len(compressor.compress(x))
         cy = len(compressor.compress(y))
         cxy = len(compressor.compress(x+y))
         end = process_time()
-        process_time += end-start
+        processing_time += end-start
 
-    process_time /= rounds
+    processing_time /= rounds
 
-    return (cxy - min(cx, cy))/max(cx, cy), process_time
+    return (cxy - min(cx, cy))/max(cx, cy), processing_time
 
 # PPMd COMPRESSING FUNCTIONS
 def ppmd_compress(data: bytes) -> bytes:
@@ -176,18 +176,18 @@ def ppmd_timed_ncd(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant="I", ro
         variant=variant
     )
 
-    process_time = 0
+    processing_time = 0
     for i in range(rounds):
         start = process_time()
         cx = len(compressor.compress(x))
         cy = len(compressor.compress(y))
         cxy = len(compressor.compress(x+y))
         end = process_time()
-        process_time += end-start
+        processing_time += end-start
 
-    process_time /= rounds
+    processing_time /= rounds
 
-    return (cxy - min(cx, cy))/max(cx, cy), process_time
+    return (cxy - min(cx, cy))/max(cx, cy), processing_time
 
 def mix_data(x: bytes, y: bytes) -> bytes:
     """
