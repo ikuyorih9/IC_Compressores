@@ -71,7 +71,7 @@ def bz2_ncd_original_data(x:bytes, y:bytes) -> float:
 def zlib_compress(data: bytes) -> bytes:
     return zlib.compress(data)
 
-def zlib_compressed_size(data: bytes) -> int:
+def zlib_compressed_size(data: bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED) -> int:
     compressor = zlib.compressobj(
         level=zlib.Z_BEST_COMPRESSION,  # Nível de compressão (0 a 9)
         method=zlib.DEFLATED,           # Método de compressão (DEFLATED é padrão)
@@ -81,7 +81,7 @@ def zlib_compressed_size(data: bytes) -> int:
     )
     return len(compressor.compress(data)+ compressor.flush())
 
-def zlib_ncd_original_data(x:bytes, y:bytes) -> float:
+def zlib_ncd_original_data(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED) -> float:
     """
     Calculates NCD from non compressed data X and Y. In this case, data are ZLIB compressed before calculate.
 
@@ -92,29 +92,36 @@ def zlib_ncd_original_data(x:bytes, y:bytes) -> float:
     Returns:
         float: the NCD value.
     """
-    cx = zlib_compressed_size(x)
-    cy = zlib_compressed_size(y)
+    cx = zlib_compressed_size(x, level, method, wbits, memLevel, strategy)
+    cy = zlib_compressed_size(y, level, method, wbits, memLevel, strategy)
     
     xy = mix_data(x,y)
-    cxy_mixed = zlib_compressed_size(xy)
-    cxy_conc = zlib_compressed_size(x+y)
+    cxy_mixed = zlib_compressed_size(xy, level, method, wbits, memLevel, strategy)
+    cxy_conc = zlib_compressed_size(x+y, level, method, wbits, memLevel, strategy)
 
     if cxy_mixed <= cxy_conc:
         cxy = cxy_mixed
     else:
         cxy = cxy_conc
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    cxy = cxy_conc
+
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
 # PPMd COMPRESSING FUNCTIONS
 def ppmd_compress(data: bytes) -> bytes:
     return pyppmd.compress(data)
 
-def ppmd_compressed_size(data: bytes) -> int:
-    return len(pyppmd.compress(data))
+def ppmd_compressed_size(data: bytes, order=6, mem_size = 16<<20, variant="I") -> int:
+    compressor = pyppmd.PpmdCompressor(
+        max_order=order,
+        mem_size=mem_size,
+        variant=variant
+    )
+    return len(compressor.compress(data))
 
-def ppmd_ncd_original_data(x:bytes, y:bytes) -> float:
+def ppmd_ncd_original_data(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant="I") -> float:
     """
     Calculates NCD from non compressed data X and Y. In this case, data are ZLIB compressed before calculate.
 
@@ -125,19 +132,19 @@ def ppmd_ncd_original_data(x:bytes, y:bytes) -> float:
     Returns:
         float: the NCD value.
     """
-    cx = ppmd_compressed_size(x)
-    cy = ppmd_compressed_size(y)
+    cx = ppmd_compressed_size(x, order, mem_size, variant)
+    cy = ppmd_compressed_size(y, order, mem_size, variant)
     
     xy = mix_data(x,y)
-    cxy_mixed = ppmd_compressed_size(xy)
-    cxy_conc = ppmd_compressed_size(x+y)
+    cxy_mixed = ppmd_compressed_size(xy, order, mem_size, variant)
+    cxy_conc = ppmd_compressed_size(x+y, order, mem_size, variant)
 
     if cxy_mixed <= cxy_conc:
         cxy = cxy_mixed
     else:
         cxy = cxy_conc
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
 def mix_data(x: bytes, y: bytes) -> bytes:
