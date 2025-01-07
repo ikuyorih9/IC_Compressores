@@ -2,6 +2,7 @@ import zlib
 import gzip
 import bz2
 import pyppmd
+from time import process_time
 
 # GZIP COMPRESSING FUNCTIONS
 def gzip_compress(data:bytes) -> bytes:
@@ -109,6 +110,27 @@ def zlib_ncd_original_data(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, meth
     # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
+def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED, rounds=1000) -> tuple[float, float]:
+    compressor = zlib.compressobj(
+        level=level,  # Nível de compressão (0 a 9)
+        method=method,           # Método de compressão (DEFLATED é padrão)
+        wbits=wbits,           # Tamanho da janela (máximo é 15)
+        memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
+        strategy=strategy  # Estratégia de compressão
+    )
+    process_time = 0
+    for i in range(rounds):
+        start = process_time()
+        cx = len(compressor.compress(x))
+        cy = len(compressor.compress(y))
+        cxy = len(compressor.compress(x+y))
+        end = process_time()
+        process_time += end-start
+
+    process_time /= rounds
+
+    return (cxy - min(cx, cy))/max(cx, cy), process_time
+
 # PPMd COMPRESSING FUNCTIONS
 def ppmd_compress(data: bytes) -> bytes:
     return pyppmd.compress(data)
@@ -146,6 +168,26 @@ def ppmd_ncd_original_data(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant
 
     # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
+
+def ppmd_timed_ncd(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant="I", rounds=1000) -> tuple[float, float]:
+    compressor = pyppmd.PpmdCompressor(
+        max_order=order,
+        mem_size=mem_size,
+        variant=variant
+    )
+
+    process_time = 0
+    for i in range(rounds):
+        start = process_time()
+        cx = len(compressor.compress(x))
+        cy = len(compressor.compress(y))
+        cxy = len(compressor.compress(x+y))
+        end = process_time()
+        process_time += end-start
+
+    process_time /= rounds
+
+    return (cxy - min(cx, cy))/max(cx, cy), process_time
 
 def mix_data(x: bytes, y: bytes) -> bytes:
     """
