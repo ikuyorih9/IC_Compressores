@@ -73,11 +73,11 @@ def zlib_compress(data: bytes) -> bytes:
 
 def zlib_compressed_size(data: bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED) -> int:
     compressor = zlib.compressobj(
-        level=zlib.Z_BEST_COMPRESSION,  # Nível de compressão (0 a 9)
-        method=zlib.DEFLATED,           # Método de compressão (DEFLATED é padrão)
-        wbits=zlib.MAX_WBITS,           # Tamanho da janela (máximo é 15)
-        memLevel=zlib.DEF_MEM_LEVEL,    # Uso de memória (1 a 9, padrão: 8)
-        strategy=zlib.Z_FILTERED  # Estratégia de compressão
+        level=level,  # Nível de compressão (0 a 9)
+        method=method,           # Método de compressão (DEFLATED é padrão)
+        wbits=wbits,           # Tamanho da janela (máximo é 15)
+        memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
+        strategy=strategy  # Estratégia de compressão
     )
     return len(compressor.compress(data)+ compressor.flush())
 
