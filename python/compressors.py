@@ -110,8 +110,8 @@ def zlib_ncd_original_data(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, meth
     # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
-def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED, rounds=1000) -> tuple[float, float]:
-    def timed_compress_len(data:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED) -> tuple[float,float]:
+def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_DEFAULT_STRATEGY, rounds=1000) -> tuple[float, float]:
+    def timed_compress_len(data:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_DEFAULT_STRATEGY) -> tuple[float,float]:
         zlib_compressor = zlib.compressobj(
             level=level,  # Nível de compressão (0 a 9)
             method=method,           # Método de compressão (DEFLATED é padrão)
@@ -120,7 +120,7 @@ def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.
             strategy=strategy  # Estratégia de compressão
         )
         start = process_time()
-        compressed = zlib_compressor.compress(data)
+        compressed = zlib_compressor.compress(data) + zlib_compressor.flush()
         end = process_time()
         return len(compressed), (end-start)
 
@@ -133,7 +133,7 @@ def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.
 
     processing_time /= rounds
 
-    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy), processing_time
 
 # PPMd COMPRESSING FUNCTIONS
