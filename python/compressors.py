@@ -111,24 +111,29 @@ def zlib_ncd_original_data(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, meth
     return (cxy - min(cx, cy))/max(cx, cy)
 
 def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED, rounds=1000) -> tuple[float, float]:
-    compressor = zlib.compressobj(
-        level=level,  # Nível de compressão (0 a 9)
-        method=method,           # Método de compressão (DEFLATED é padrão)
-        wbits=wbits,           # Tamanho da janela (máximo é 15)
-        memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
-        strategy=strategy  # Estratégia de compressão
-    )
+    def timed_compress_len(data:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_FILTERED) -> tuple[float,float]:
+        zlib_compressor = zlib.compressobj(
+            level=level,  # Nível de compressão (0 a 9)
+            method=method,           # Método de compressão (DEFLATED é padrão)
+            wbits=wbits,           # Tamanho da janela (máximo é 15)
+            memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
+            strategy=strategy  # Estratégia de compressão
+        )
+        start = process_time()
+        compressed = zlib_compressor.compress(data)
+        end = process_time()
+        return len(compressed), (end-start)
+
     processing_time = 0
     for i in range(rounds):
-        start = process_time()
-        cx = len(compressor.compress(x))
-        cy = len(compressor.compress(y))
-        cxy = len(compressor.compress(x+y))
-        end = process_time()
-        processing_time += end-start
+        cx, tx = timed_compress_len(x, level, method, wbits, memLevel, strategy)
+        cy, ty = timed_compress_len(y, level, method, wbits, memLevel, strategy)
+        cxy, txy = timed_compress_len((x+y), level, method, wbits, memLevel, strategy)
+        processing_time += tx + ty + txy
 
     processing_time /= rounds
 
+    print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy), processing_time
 
 # PPMd COMPRESSING FUNCTIONS
@@ -170,20 +175,23 @@ def ppmd_ncd_original_data(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant
     return (cxy - min(cx, cy))/max(cx, cy)
 
 def ppmd_timed_ncd(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant="I", rounds=1000) -> tuple[float, float]:
-    compressor = pyppmd.PpmdCompressor(
-        max_order=order,
-        mem_size=mem_size,
-        variant=variant
-    )
+    def timed_compress_len(data:bytes, order=6, mem_size = 16<<20, variant="I") -> tuple[float,float]:
+        ppmd_compressor = pyppmd.PpmdCompressor(
+            max_order=order,
+            mem_size=mem_size,
+            variant=variant
+        )
+        start = process_time()
+        compressed = ppmd_compressor.compress(data)
+        end = process_time()
+        return len(compressed), (end-start)
 
     processing_time = 0
     for i in range(rounds):
-        start = process_time()
-        cx = len(compressor.compress(x))
-        cy = len(compressor.compress(y))
-        cxy = len(compressor.compress(x+y))
-        end = process_time()
-        processing_time += end-start
+        cx, tx = timed_compress_len(x, order, mem_size, variant)
+        cy, ty = timed_compress_len(y, order, mem_size, variant)
+        cxy, txy = timed_compress_len((x+y), order, mem_size, variant)
+        processing_time += tx + ty + txy
 
     processing_time /= rounds
 
