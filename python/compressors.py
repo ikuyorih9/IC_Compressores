@@ -24,14 +24,7 @@ def gzip_ncd_original_data(x:bytes, y:bytes) -> float:
     """
     cx = gzip_compressed_size(x)
     cy = gzip_compressed_size(y)
-    xy = mix_data(x,y)
-    cxy_mixed = gzip_compressed_size(xy)
-    cxy_conc = gzip_compressed_size(x+y)
-
-    if cxy_mixed <= cxy_conc:
-        cxy = cxy_mixed
-    else:
-        cxy = cxy_conc
+    cxy = gzip_compressed_size(x+y)
 
     print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
@@ -56,14 +49,7 @@ def bz2_ncd_original_data(x:bytes, y:bytes) -> float:
     """
     cx = bz2_compressed_size(x)
     cy = bz2_compressed_size(y)
-    xy = mix_data(x,y)
-    cxy_mixed = bz2_compressed_size(xy)
-    cxy_conc = bz2_compressed_size(x+y)
-
-    if cxy_mixed <= cxy_conc:
-        cxy = cxy_mixed
-    else:
-        cxy = cxy_conc
+    cxy = bz2_compressed_size(x+y)
 
     print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
@@ -95,17 +81,7 @@ def zlib_ncd_original_data(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, meth
     """
     cx = zlib_compressed_size(x, level, method, wbits, memLevel, strategy)
     cy = zlib_compressed_size(y, level, method, wbits, memLevel, strategy)
-    
-    xy = mix_data(x,y)
-    cxy_mixed = zlib_compressed_size(xy, level, method, wbits, memLevel, strategy)
-    cxy_conc = zlib_compressed_size(x+y, level, method, wbits, memLevel, strategy)
-
-    if cxy_mixed <= cxy_conc:
-        cxy = cxy_mixed
-    else:
-        cxy = cxy_conc
-
-    cxy = cxy_conc
+    cxy = zlib_compressed_size(x+y, level, method, wbits, memLevel, strategy)
 
     # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
@@ -168,15 +144,7 @@ def ppmd_ncd_original_data(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant
     """
     cx = ppmd_compressed_size(x, order, mem_size, variant)
     cy = ppmd_compressed_size(y, order, mem_size, variant)
-    
-    xy = mix_data(x,y)
-    cxy_mixed = ppmd_compressed_size(xy, order, mem_size, variant)
-    cxy_conc = ppmd_compressed_size(x+y, order, mem_size, variant)
-
-    if cxy_mixed <= cxy_conc:
-        cxy = cxy_mixed
-    else:
-        cxy = cxy_conc
+    cxy = ppmd_compressed_size(x+y, order, mem_size, variant)
 
     # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
