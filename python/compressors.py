@@ -110,7 +110,7 @@ def zlib_ncd_original_data(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, meth
     # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
     return (cxy - min(cx, cy))/max(cx, cy)
 
-def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_DEFAULT_STRATEGY, rounds=1000) -> tuple[float, float]:
+def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_DEFAULT_STRATEGY, rounds=1000, chunk_size=32<<10) -> tuple[float, float]:
     def timed_compress_len(data:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_DEFAULT_STRATEGY) -> tuple[float,float]:
         zlib_compressor = zlib.compressobj(
             level=level,  # Nível de compressão (0 a 9)
@@ -122,14 +122,21 @@ def zlib_timed_ncd(x:bytes, y:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.
         start = process_time()
         compressed = zlib_compressor.compress(data) + zlib_compressor.flush()
         end = process_time()
+        del zlib_compressor
         return len(compressed), (end-start)
 
     processing_time = 0
     for i in range(rounds):
         cx, tx = timed_compress_len(x, level, method, wbits, memLevel, strategy)
         cy, ty = timed_compress_len(y, level, method, wbits, memLevel, strategy)
-        cxy, txy = timed_compress_len((x+y), level, method, wbits, memLevel, strategy)
-        processing_time += tx + ty + txy
+
+        mix_start = process_time()
+        xy = mix_bytes(x,y,chunk_size)
+        mix_end = process_time()
+
+        mix_time = mix_end - mix_start
+        cxy, txy = timed_compress_len((xy), level, method, wbits, memLevel, strategy)
+        processing_time += tx + ty + mix_time + txy
 
     processing_time /= rounds
 
@@ -184,6 +191,7 @@ def ppmd_timed_ncd(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant="I", ro
         start = process_time()
         compressed = ppmd_compressor.compress(data)
         end = process_time()
+        del ppmd_compressor
         return len(compressed), (end-start)
 
     processing_time = 0
@@ -197,27 +205,49 @@ def ppmd_timed_ncd(x:bytes, y:bytes, order=6, mem_size = 16<<20, variant="I", ro
 
     return (cxy - min(cx, cy))/max(cx, cy), processing_time
 
-def mix_data(x: bytes, y: bytes) -> bytes:
+def mix_bytes(x: bytes, y: bytes, chunk_size: int) -> bytes:
     """
-    Intercala os bytes de x e y. Se x e y tiverem tamanhos diferentes,
-    os bytes restantes da entrada maior serão adicionados ao final.
+    Intercala os bytes de dois streams em blocos de tamanho chunk_size.
 
-    Args:
-        x (bytes): Primeira sequência de bytes.
-        y (bytes): Segunda sequência de bytes.
+    Parâmetros:
+    - x: bytes do primeiro arquivo.
+    - y: bytes do segundo arquivo.
+    - chunk_size: tamanho do bloco de intercalação.
 
-    Returns:
-        bytes: Sequência de bytes intercalada.
+    Retorno:
+    - Um único stream de bytes com os dados de x e y intercalados em blocos de chunk_size.
     """
-    # Intercalar até o menor comprimento
-    mixed = b''.join(bytes([a]) + bytes([b]) for a, b in zip(x, y))
-    
-    # Adicionar os bytes restantes, se houver
-    if len(x) > len(y):
-        mixed += x[len(y):]
-    elif len(y) > len(x):
-        mixed += y[len(x):]
-    
-    return mixed
+    # Calcula os tamanhos dos streams
+    len_x = len(x)
+    len_y = len(y)
+
+    # Calcula o tamanho total do resultado
+    total_length = len_x + len_y
+
+    # Cria um bytearray para o resultado (mais eficiente que concatenar bytes)
+    result = bytearray(total_length)
+
+    # Índices para percorrer os streams e o resultado
+    i, j, k = 0, 0, 0
+
+    # Intercala os blocos enquanto houver dados em x ou y
+    while i < len_x or j < len_y:
+        # Copia um bloco de x para o resultado, se ainda houver dados
+        if i < len_x:
+            end = min(i + chunk_size, len_x)
+            result[k:k + (end - i)] = x[i:end]
+            k += end - i
+            i = end
+
+        # Copia um bloco de y para o resultado, se ainda houver dados
+        if j < len_y:
+            end = min(j + chunk_size, len_y)
+            result[k:k + (end - j)] = y[j:end]
+            k += end - j
+            j = end
+
+    # Retorna o resultado como bytes
+    return bytes(result)
+
 
 
