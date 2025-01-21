@@ -106,7 +106,7 @@ def zlib_and_ppmd_timed_ncd(
             variant=ppmd_params[2]
         )
         start = process_time()
-        ppmd_compressed = ppmd_compressor.compress(data)
+        ppmd_compressed = ppmd_compressor.compress(data) + ppmd_compressor.flush()
         end = process_time()
         del ppmd_compressor
 
