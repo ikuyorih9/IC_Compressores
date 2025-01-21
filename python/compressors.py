@@ -110,6 +110,8 @@ def zlib_and_ppmd_timed_ncd(
         end = process_time()
         del ppmd_compressor
 
+        t1 = end - start
+
         zlib_compressor = zlib.compressobj(
             level=zlib_params[0],  # Nível de compressão (0 a 9)
             method=zlib_params[1],           # Método de compressão (DEFLATED é padrão)
@@ -122,7 +124,9 @@ def zlib_and_ppmd_timed_ncd(
         end = process_time()
         del zlib_compressor
 
-        return len(zlib_compressed), (end-start)
+        t2 = end - start
+
+        return len(zlib_compressed), (t1+t2)
 
     processing_time = 0
     if zlib_first:
