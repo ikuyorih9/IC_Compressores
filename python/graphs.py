@@ -76,3 +76,16 @@ def ppmd_print_all_graphs(dataset, x_axis, y_lim=[0.7,1.2]):
         'Arquivo com código defeituoso',
         'Média da NCD',
         y_lim=y_lim)
+    
+def zlib_ppmd_print_all_graphs(dataset, x_axis, title="title", y_lim=[0.7,1.2]):
+  for i in range(len(dataset)):
+    print(f"\tTempo de processamento = {dataset[i][0]:.3f} [s]")
+    print(f"\tDiferença absoluta média = {dataset[i][1]:.3f}")
+    plot_ncd_average_graph(
+        dataset[i][2][0],
+        dataset[i][2][1],
+        x_axis,
+        title,
+        'Arquivo com código defeituoso',
+        'Média da NCD',
+        y_lim=y_lim)

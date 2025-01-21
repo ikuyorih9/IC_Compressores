@@ -4,8 +4,17 @@ from support import *
 from time import process_time
 
 # PPMd COMPRESSING FUNCTIONS
-def ppmd_compress(data: bytes) -> bytes:
-    return pyppmd.compress(data)
+def ppmd_compress(
+        data:bytes, 
+        order=12, 
+        mem_size = 512<<10, 
+        variant="I") -> bytes:
+    compressor = pyppmd.PpmdCompressor(
+        order = order,
+        mem_size = mem_size,
+        variant = variant
+    )
+    return compressor.compress(data) + compressor.flush()
 
 def ppmd_compressed_size(data: bytes, order=6, mem_size = 16<<20, variant="I") -> int:
     compressor = pyppmd.PpmdCompressor(

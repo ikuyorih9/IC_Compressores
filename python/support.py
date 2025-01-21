@@ -171,7 +171,7 @@ def merge_files(dir:str, num_files:int, out_names:str = "merged"):
 
         with open(final_path, "w") as out_file:
             out_file.write(files[i])
-            
+       
 if __name__ == "__main__":
     # create_non_redundant_files("../data/LARGEST/")
     merge_files("../data/LARGEST/PROCESS_zero", 6, "process")

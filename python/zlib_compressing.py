@@ -5,10 +5,27 @@ Funções de compressão com o compressor ZLIB.
 import zlib
 from graphs import *
 from support import *
+from ppmd_compressing import ppmd_compress
 from time import process_time
 
-def zlib_compress(data: bytes) -> bytes:
-    return zlib.compress(data)
+def zlib_compress(
+        data: bytes, 
+        level = zlib.Z_BEST_COMPRESSION, 
+        method = zlib.DEFLATED, 
+        wbits = zlib.MAX_WBITS, 
+        memLevel = zlib.DEF_MEM_LEVEL, 
+        strategy = zlib.Z_FILTERED) -> bytes:
+    
+    compressor = zlib.compressobj(
+        level=level,  # Nível de compressão (0 a 9)
+        method=method,           # Método de compressão (DEFLATED é padrão)
+        wbits=wbits,           # Tamanho da janela (máximo é 15)
+        memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
+        strategy=strategy  # Estratégia de compressão
+    )
+    compressed_data = compressor.compress(data) + compressor.flush()
+    del compressor
+    return compressed_data
 
 def zlib_compressed_size(
         data: bytes, 
@@ -102,6 +119,64 @@ def zlib_timed_ncd(
 
         mix_time = mix_end - mix_start
         cxy, txy = timed_compress_len((xy), level, method, wbits, memLevel, strategy)
+        processing_time += tx + ty + mix_time + txy
+
+    processing_time /= rounds
+
+    # print(f"cx = {cx}; cy = {cy}; cxy = {cxy}; min = {min(cx,cy)}; max = {max(cx,cy)} -> NCD={(cxy - min(cx, cy))/max(cx, cy)}")
+    return (cxy - min(cx, cy))/max(cx, cy), processing_time
+
+def zlib_ppmd_timed_ncd(
+        x:bytes, 
+        y:bytes, 
+        level = zlib.Z_BEST_COMPRESSION, 
+        method = zlib.DEFLATED, 
+        wbits = zlib.MAX_WBITS, 
+        memLevel = zlib.DEF_MEM_LEVEL, 
+        strategy = zlib.Z_DEFAULT_STRATEGY, 
+        rounds = 10, 
+        chunk_size = -1) -> tuple[float, float]:
+    """
+    Calculates NCD from non compressed data X and Y using ZLIB compressor and gets the processing time.
+
+    Args:
+        x (bytes): bytes from original file 1.
+        y (bytes): bytes from original file 2.
+        level: number of level of compression parameter (0 to 9).
+        method: number that represents which method compressor uses. Only supports zlib.DEFLATED.
+        wbits: number that represents the size of sliding window.
+        strategy: number that represents the strategy of compressiong.
+        rounds: number of testing rounds.
+        chunk_size: chunk size for the mix block between x and y.
+    
+    Returns:
+        [float, float]: the NCD value and the processing time.
+    """
+    def double_timed_compress_len(data:bytes, level=zlib.Z_BEST_COMPRESSION, method=zlib.DEFLATED, wbits=zlib.MAX_WBITS, memLevel=zlib.DEF_MEM_LEVEL, strategy=zlib.Z_DEFAULT_STRATEGY) -> tuple[float,float]:
+        zlib_compressor = zlib.compressobj(
+            level=level,  # Nível de compressão (0 a 9)
+            method=method,           # Método de compressão (DEFLATED é padrão)
+            wbits=wbits,           # Tamanho da janela (máximo é 15)
+            memLevel=memLevel,    # Uso de memória (1 a 9, padrão: 8)
+            strategy=strategy  # Estratégia de compressão
+        )
+        start = process_time()
+        compressed = zlib_compressor.compress(data) + zlib_compressor.flush()
+        end = process_time()
+        del zlib_compressor
+        return len(compressed), (end-start)
+
+    processing_time = 0
+    for i in range(rounds):
+        cx, tx = double_timed_compress_len(x, level, method, wbits, memLevel, strategy)
+        cy, ty = double_timed_compress_len(y, level, method, wbits, memLevel, strategy)
+
+        mix_start = process_time()
+        xy = mix_bytes(x,y,chunk_size)
+        mix_end = process_time()
+
+        mix_time = mix_end - mix_start
+        cxy, txy = double_timed_compress_len((xy), level, method, wbits, memLevel, strategy)
         processing_time += tx + ty + mix_time + txy
 
     processing_time /= rounds
