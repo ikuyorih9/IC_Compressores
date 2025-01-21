@@ -194,9 +194,9 @@ def zlib_get_data_and_time(
     return ncd_results, x_axis
 
 if __name__ == "__main__":
-    process_dir = "../data/LARGEST/PROCESS_zero"
-    control_dir = "../data/LARGEST/CONTROL_zero"
+    process_dir = "../data/LARGEST/PROCESS_zero/merged"
+    control_dir = "../data/LARGEST/CONTROL_zero/merged"
 
-    dataset, x_axis = zlib_get_data_and_time(process_dir, control_dir, 10, chunk_size=512, rounds=10)
+    dataset, x_axis = zlib_get_data_and_time(process_dir, control_dir, 5, chunk_size=32<<10, rounds=10)
 
     zlib_print_all_graphs(dataset, x_axis)

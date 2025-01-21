@@ -110,10 +110,13 @@ def ppmd_get_data_and_time(
                 for j in range(n_files): # Laço para cada arquivo defeituoso (PROCESS) e não-defeituoso (CONTROL).
                     if i != j:
                         ncd, time = ppmd_timed_ncd(data1[i][0], data1[j][0], order=order, mem_size=mem<<10,rounds=rounds) # Calcula a NCD entre PROCESS-PROCESS.
+                        #print(f"NCD 1 ({data1[i][1]} x {data1[j][1]}): {ncd}")
                         deflect_average += ncd # Incrementa a média da NCD do tipo defeito.
                         processing_time += time # Incrementa o tempo de processamento.
 
                     ncd, time = ppmd_timed_ncd(data1[i][0], data2[j][0], order=order, rounds=rounds) # Calcula a NCD entre PROCESS-CONTROL
+                    
+                    #print(f"NCD 2: {ncd}")
                     non_deflect_average += ncd # Incrementa a média da NCD do tipo não-defeito.
                     processing_time += time # Incrementa o tempo de processamento.
 
@@ -136,6 +139,15 @@ if __name__ == "__main__":
     process_dir = "../data/LARGEST/PROCESS"
     control_dir = "../data/LARGEST/CONTROL"
 
-    dataset, x_axis = ppmd_get_data_and_time(process_dir, control_dir, 10, [16], [256], rounds=5)
+    # print(f"Opening {5} files from {process_dir}..")
+    # data1 = open_files_from_dir(process_dir, 5)
+
+    # print(f"Opening {5} files from {control_dir}...")
+    # data2 = open_files_from_dir(control_dir, 5) # Open the first set of compressed files
+    
+    # ncd = ppmd_ncd_original_data(data2[0][0], data2[0][0], order=6, mem_size=512<<10)
+    # print(f"ncd = {ncd} - {data2[0][1]} x {data2[0][1]}")
+
+    dataset, x_axis = ppmd_get_data_and_time(process_dir, control_dir, 10, [12], [512], rounds=5)
 
     ppmd_print_all_graphs(dataset, x_axis)
