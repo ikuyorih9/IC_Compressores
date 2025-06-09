@@ -145,8 +145,9 @@ def ppmd_get_data_and_time(
     return ncd_results, x_axis
 
 if __name__ == "__main__":
-    process_dir = "../data/LARGEST/PROCESS_zero/merged"
-    control_dir = "../data/LARGEST/CONTROL_zero/merged"
+    process_dir = "../data/LARGE/PROCESS/"
+    control_dir = "../data/LARGE/CONTROL/"
+    memory_dir = "../data/LARGE/MEMORY/"
 
     # print(f"Opening {5} files from {process_dir}..")
     # data1 = open_files_from_dir(process_dir, 5)
@@ -157,6 +158,6 @@ if __name__ == "__main__":
     # ncd = ppmd_ncd_original_data(data2[0][0], data2[0][0], order=6, mem_size=512<<10)
     # print(f"ncd = {ncd} - {data2[0][1]} x {data2[0][1]}")
 
-    dataset, x_axis = ppmd_get_data_and_time(process_dir, control_dir, 5, [12], [512], rounds=10)
+    dataset, x_axis = ppmd_get_data_and_time(process_dir, control_dir, 10, [32], [1<<10], rounds=10)
 
-    ppmd_print_all_graphs(dataset, x_axis)
+    ppmd_print_all_graphs(dataset, x_axis, y_lim=[0.4,1])
